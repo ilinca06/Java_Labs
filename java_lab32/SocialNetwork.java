@@ -4,7 +4,9 @@
  */
 package java_lab32;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -19,7 +21,7 @@ public class SocialNetwork {
     {
         this.profiles=new ArrayList<>();
     }
-    //metoda prin acre adaugam un nou cont pe retea
+    //metoda prin care adaugam un nou cont pe retea
     public void addProfiles(Profile p)
     {
         this.profiles.add(p);
@@ -32,31 +34,28 @@ public class SocialNetwork {
     //calculam importanta (nr de ralatii)
     public int computeImportance(Profile target)
     {
-        int importance=0;
-        //daca profilul este o persoana, numaram pe cine are ea in agenda
-        if(target instanceof Person)
-        {
-            //transformam in persoana ca sa ii vedm agenda
-            Person p=(Person) target;
-            importance += p.getRelationships().size();
+        //set pentru relatii unice (fara duplicate)
+        Set<Profile> uniqueConnections = new HashSet<>();
+
+        //adaugam persoanele pe care target-ul le are in agenda lui
+        if (target instanceof Person) {
+        Person p = (Person) target; 
+        uniqueConnections.addAll(p.getRelationships().keySet()); 
         }
-        //trebuie sa numaram si cati alti oameni au adaugat acest target la agenda lor
-        for(Profile p : profiles)
-        {
-            if(p instanceof Person)
-            {
-                Person otherPerson=(Person) p;
-                //ne asiguram ca nu ne numaram pe noi insine
-                if(otherPerson!=target)
-                {
-                    //daca in agenda altui om se afla si target-ul, crestem importanta
-                    if(otherPerson.getRelationships().containsKey(target))
-                    {
-                        importance++;
+
+        //cautam in toata reteaua cine l-a adaugat pe target in agenda lor
+        for (Profile p : profiles) {
+           if (p instanceof Person) {
+               Person otherPerson = (Person) p;
+            
+              if (otherPerson != target) {
+                  //daca il gasim, il punem in Set
+                  if (otherPerson.getRelationships().containsKey(target)) {
+                      uniqueConnections.add(otherPerson); 
                     }
                 }
             }
         }
-     return importance;   
+       return uniqueConnections.size();
     }
 }
